@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS produto (
     nome_produto VARCHAR(150) NOT NULL,
     preco_produto NUMERIC(10,2) NOT NULL,
     qtde_estoque INT NOT NULL,
-    -- valor_ultima_compra NUMERIC(10,2) NOT NULL,
-    -- valor_ultima_venda NUMERIC(10,2) NOT NULL,
+    valor_ultima_compra NUMERIC(10,2) NOT NULL,
+    valor_ultima_venda NUMERIC(10,2) NOT NULL,
     id_categoria INT NOT NULL REFERENCES categoria(id_categoria)
 );
 
