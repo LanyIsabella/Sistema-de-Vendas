@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import estudo.vendas.model.Compra;
 import estudo.vendas.model.Conexao;
@@ -14,11 +15,12 @@ public class CompraDAO {
 
         String query = "INSERT INTO compra (data_compra, valor_total, id_fornecedor) VALUES (?, ?, ?)";
         PreparedStatement stmt = null;
+        ResultSet rs = null;
 
         try {
             Connection conn = Conexao.getConnection();
 
-            stmt = conn.prepareStatement(query);
+            stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setDate(1, new Date(compra.getData_compra().getTime()));
             stmt.setFloat(2, compra.getValor_total());
@@ -26,13 +28,26 @@ public class CompraDAO {
 
             int linhas_afetadas = stmt.executeUpdate();
 
-            return linhas_afetadas > 0;
+            if (linhas_afetadas > 0) {
+                rs = stmt.getGeneratedKeys();
+
+                if (rs.next()) {
+                    compra.setId_compra(rs.getInt(1));
+                }
+
+                return true;
+            }
+
+            return false;
 
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         } finally {
             try {
+                if (rs != null) {
+                    rs.close();
+                }
                 if (stmt != null) {
                     stmt.close();
                 }

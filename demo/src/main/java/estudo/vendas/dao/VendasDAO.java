@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import estudo.vendas.model.Conexao;
 import estudo.vendas.model.Vendas;
@@ -14,25 +15,39 @@ public class VendasDAO {
 
         String query = "INSERT INTO vendas (data_venda, valor_total, id_cliente) VALUES (?, ?, ?)";
         PreparedStatement stmt = null;
+        ResultSet rs = null;
 
         try {
             Connection conn = Conexao.getConnection();
 
-            stmt = conn.prepareStatement(query);
+            stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
-            stmt.setDate(1, (Date) vendas.getData_venda());
+            stmt.setDate(1, new Date(vendas.getData_venda().getTime()));
             stmt.setFloat(2, vendas.getValor_total());
             stmt.setInt(3, vendas.getCliente().getId_cliente());
 
             int linhas_afetadas = stmt.executeUpdate();
 
-            return linhas_afetadas > 0;
+            if (linhas_afetadas > 0) {
+                rs = stmt.getGeneratedKeys();
+
+                if (rs.next()) {
+                    vendas.setId_venda(rs.getInt(1));
+                }
+
+                return true;
+            }
+
+            return false;
         
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         } finally {
             try {
+                if (rs != null) {
+                    rs.close();
+                }
                 if (stmt != null) {
                     stmt.close();
                 }
@@ -52,7 +67,7 @@ public class VendasDAO {
 
             stmt = conn.prepareStatement(query);
 
-            stmt.setDate(1, (Date) venda_nova.getData_venda());
+            stmt.setDate(1, new Date(venda_nova.getData_venda().getTime()));
             stmt.setFloat(2, venda_nova.getValor_total());
             stmt.setInt(3, venda_nova.getCliente().getId_cliente());
             stmt.setInt(4, venda_antiga.getId_venda());

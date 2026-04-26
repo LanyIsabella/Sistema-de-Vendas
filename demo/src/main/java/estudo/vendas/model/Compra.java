@@ -49,6 +49,5 @@ public class Compra {
     public void setFornecedor(Fornecedor fornecedor) {
         this.fornecedor = fornecedor;
     }
-
     
 }

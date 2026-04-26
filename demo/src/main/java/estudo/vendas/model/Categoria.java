@@ -29,6 +29,4 @@ public class Categoria {
     public void setNome_categoria(String nome_categoria) {
         this.nome_categoria = nome_categoria;
     }
-
-
 }

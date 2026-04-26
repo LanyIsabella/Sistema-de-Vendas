@@ -30,6 +30,4 @@ public class ProdutoFornecedor {
         this.id_fornecedor = id_fornecedor;
     }
 
-    
-    
 }

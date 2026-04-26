@@ -49,7 +49,5 @@ public class ItensVenda {
     public void setProduto(Produto produto) {
         this.produto = produto;
     }
-
-    
     
 }

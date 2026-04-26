@@ -4,9 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
+import estudo.vendas.model.Compra;
 import estudo.vendas.model.Conexao;
 import estudo.vendas.model.ItensCompra;
+import estudo.vendas.model.Produto;
 
 public class ItensCompraDAO {
     public boolean salvarItensCompra(ItensCompra itens_compra) {
@@ -137,5 +141,57 @@ public class ItensCompraDAO {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    
+    public List<ItensCompra> listarItensCompraPorCompra(Compra compras) {
+        String query = "SELECT * FROM itens_compra WHERE (id_compra) = (?)";
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<ItensCompra> listaItens = new ArrayList<>();
+
+        try {
+            Connection conn = Conexao.getConnection();
+            stmt = conn.prepareStatement(query);
+
+            stmt.setInt(1, compras.getId_compra());
+
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                ItensCompra item = new ItensCompra();
+
+                item.setId_item(rs.getInt("id_item"));
+                item.setQuantidade(rs.getInt("quantidade"));
+
+                Compra compra = new Compra();
+                compra.setId_compra(rs.getInt("id_compra"));
+                item.setCompra(compra);
+
+                Produto produto = new Produto();
+                produto.setId_produto(rs.getInt("id_produto"));
+                item.setProduto(produto);
+
+                listaItens.add(item);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return listaItens;
     }
 }

@@ -48,5 +48,4 @@ public class ItensCompra {
         this.compra = compra;
     }
 
-    
 }

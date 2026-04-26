@@ -122,7 +122,14 @@ public class VendasCONTROLLER {
             return false;
         }
 
+        if (venda.getId_venda() == null) {
+            System.out.println("Erro ao obter ID da venda.");
+            return false;
+        }
+
         for (ItensVenda item : itens) {
+            item.setVendas(venda);
+
             boolean itemSalvo = itensVendaDAO.salvarItensVenda(item);
 
             if (!itemSalvo) {

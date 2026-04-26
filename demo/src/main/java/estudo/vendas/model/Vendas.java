@@ -52,6 +52,4 @@ public class Vendas {
         this.cliente = cliente;
     }
 
-    
-
 }
