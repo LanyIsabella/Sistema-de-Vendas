@@ -155,22 +155,27 @@ public class VendasDAO {
         }
     }
 
-    public int listarVendasCliente(int id_cliente) {
-        String query = "SELECT COUNT(*) FROM vendas WHERE (id_cliente) = (?)";
+    public int listarVendasClienteMes(String cpf_cliente) {
+        String query = "SELECT COUNT(*) FROM vendas v "
+                + "INNER JOIN cliente c ON v.id_cliente = c.id_cliente "
+                + "WHERE c.cpf_cliente = ? "
+                + "AND v.data_venda >= date_trunc('month', CURRENT_DATE)::date "
+                + "AND v.data_venda < (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month')::date";
+
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try {
-        Connection conn = Conexao.getConnection();
-        stmt = conn.prepareStatement(query);
+            Connection conn = Conexao.getConnection();
+            stmt = conn.prepareStatement(query);
 
-        stmt.setInt(1, id_cliente);
+            stmt.setString(1, cpf_cliente);
 
-        rs = stmt.executeQuery();
+            rs = stmt.executeQuery();
 
-        if (rs.next()) {
-            return rs.getInt(1);
-        }
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -186,4 +191,5 @@ public class VendasDAO {
 
         return 0;
     }
+
 }

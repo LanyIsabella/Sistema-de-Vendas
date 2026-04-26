@@ -6,7 +6,6 @@ import estudo.vendas.dao.ItensVendaDAO;
 import estudo.vendas.dao.ProdutoDAO;
 import estudo.vendas.dao.VendasDAO;
 import estudo.vendas.model.ItensVenda;
-import estudo.vendas.model.Produto;
 import estudo.vendas.model.Vendas;
 
 public class VendasCONTROLLER {
@@ -14,120 +13,64 @@ public class VendasCONTROLLER {
     private ItensVendaDAO itensVendaDAO = new ItensVendaDAO();
     private ProdutoDAO produtoDAO = new ProdutoDAO();
 
-    public boolean verificarEstoque(List<ItensVenda> itens) {
+    public boolean salvarVenda(Vendas venda, List<ItensVenda> itensVenda) {
+        if (itensVenda == null || itensVenda.isEmpty()) {
+            System.out.println("Venda sem itens.");
+            return false;
+        }
 
-        // Ao fazer uma venda, o sistema deve validar se tal produto tem
-        // estoque maior ou igual a 1. Se não tiver, a venda não pode ser
-        // executada e a operação de venda abortada.
-
-        for (ItensVenda item : itens) {
-            Produto produtoBanco = produtoDAO.buscarProdutoID(item.getProduto().getId_produto());
-
-            if (produtoBanco == null) {
-                System.out.println("Produto não encontrado.");
+        for (ItensVenda item : itensVenda) {
+            if (item.getProduto() == null || item.getProduto().getId_produto() == null) {
+                System.out.println("Produto invalido no item da venda.");
                 return false;
             }
 
-            if (item.getQuantidade() <= 0) {
-                System.out.println("Quantidade inválida.");
+            if (item.getQuantidade() == null || item.getQuantidade() <= 0) {
+                System.out.println("Quantidade invalida no item da venda.");
                 return false;
             }
 
-            if (item.getQuantidade() > produtoBanco.getQtde_estoque()) {
-                System.out.println("Estoque insuficiente para o produto: " + produtoBanco.getNome_produto());
+            if (item.getPreco_unitario() == null || item.getPreco_unitario() <= 0) {
+                System.out.println("Preco unitario invalido no item da venda.");
+                return false;
+            }
+
+            // Verifica o estoque de produto na base
+
+            int idProduto = item.getProduto().getId_produto();
+            int estoque = produtoDAO.verificarEstoque(idProduto);
+
+            if (item.getQuantidade() > estoque || estoque < 1) {
+                System.out.println("Estoque insuficiente para o produto: " + idProduto);
                 return false;
             }
         }
 
-        return true;
-    }
+        // Verifica a qtde de vendas por cpf no mes
 
-    public boolean verificarVendasCliente(int id_cliente){
+        int qtdeVendas = vendasDAO.listarVendasClienteMes(venda.getCliente().getCpf_cliente());
 
-        // Ao fazer uma venda, o sistema deve verificar quantas vendas já
-        // foram realizadas para o cliente Flávio Vilela. Se já foram
-        // realizadas mais de 3 vendas, exibir uma mensagem de alerta
-        // dizendo que atingiu a quantidade de vendas por cliente e
-        // abortar a operação.
-
-        int quantidade_vendas = vendasDAO.listarVendasCliente(id_cliente);
-
-        if (quantidade_vendas >= 3) {
-            System.err.println("Limite de vendas por usuário excedido.");
+        if (qtdeVendas > 3) {
+            System.out.println("Cliente ja atingiu o limite de 3 vendas no mes.");
             return false;
         }
 
-        return true;
+        // Calcula o valor total da venda
 
-    }
+        venda.setValor_total(calcularValorTotal(itensVenda));
 
-
-    public boolean atualizarEstoque(int id_produto, int quantidadeVendida) {
-
-        // Ao fazer uma venda, o sistema deve atualizar o estoque, ou seja,
-        // subtrair a quantidade vendida do estoque atual. 
-
-        Produto produtoBanco = produtoDAO.buscarProdutoID(id_produto);
-
-        if (produtoBanco == null) {
-            System.out.println("Produto não encontrado.");
-            return false;
-        }
-
-        int estoqueAtual = produtoBanco.getQtde_estoque();
-        int novoEstoque = estoqueAtual - quantidadeVendida;
-
-        if (novoEstoque < 0) {
-            System.out.println("Estoque não pode ficar negativo.");
-            return false;
-        }
-
-        return produtoDAO.atualizarEstoqueProduto(id_produto, novoEstoque);
-    }
-
-    public float calcularValorTotal(List<ItensVenda> itens) {
-
-        // Calcular valor_total de vendas.
-
-        float total = 0;
-
-        for (ItensVenda item : itens) {
-            Produto produtoBanco = produtoDAO.buscarProdutoID(item.getProduto().getId_produto());
-
-            if (produtoBanco != null) {
-                total += produtoBanco.getPreco_produto() * item.getQuantidade();
-            }
-        }
-
-        return total;
-    }
-
-    public boolean realizarVenda(Vendas venda, List<ItensVenda> itens) {
-
-        if (!verificarVendasCliente(venda.getCliente().getId_cliente())) {
-            return false;
-        }
-
-        if (!verificarEstoque(itens)) {
-            return false;
-        }
-
-        float total = calcularValorTotal(itens);
-        venda.setValor_total(total);
+        // Salva a venda
 
         boolean vendaSalva = vendasDAO.salvarVenda(venda);
 
-        if (!vendaSalva) {
+        if (!vendaSalva || venda.getId_venda() == null) {
             System.out.println("Erro ao salvar venda.");
             return false;
         }
 
-        if (venda.getId_venda() == null) {
-            System.out.println("Erro ao obter ID da venda.");
-            return false;
-        }
+        // Salva itens da venda
 
-        for (ItensVenda item : itens) {
+        for (ItensVenda item : itensVenda) {
             item.setVendas(venda);
 
             boolean itemSalvo = itensVendaDAO.salvarItensVenda(item);
@@ -136,26 +79,35 @@ public class VendasCONTROLLER {
                 System.out.println("Erro ao salvar item da venda.");
                 return false;
             }
+        }
 
-            boolean estoqueAtualizado = atualizarEstoque(
-                item.getProduto().getId_produto(),
-                item.getQuantidade()
-            );
+        // Atualiza o estoque e o campo valor_ultima_venda
 
-            if (!estoqueAtualizado) {
-                System.out.println("Erro ao atualizar estoque.");
+        for (ItensVenda item : itensVenda) {
+            int idProduto = item.getProduto().getId_produto();
+            int novoEstoque = produtoDAO.verificarEstoque(idProduto) - item.getQuantidade();
+
+            boolean estoqueAtualizado = produtoDAO.atualizarEstoqueProduto(idProduto, novoEstoque);
+            boolean ultimoValorAtualizado = produtoDAO.atualizarUltimoValorVenda(idProduto, item.getPreco_unitario());
+
+            if (!estoqueAtualizado || !ultimoValorAtualizado) {
+                System.out.println("Erro ao atualizar produto: " + idProduto);
                 return false;
             }
         }
 
-        System.out.println("Venda realizada com sucesso.");
         return true;
     }
+
+    // Metodo pra calcular valor total
+
+    private float calcularValorTotal(List<ItensVenda> itensVenda) {
+        float total = 0;
+
+        for (ItensVenda item : itensVenda) {
+            total += item.getPreco_unitario() * item.getQuantidade();
+        }
+
+        return total;
+    }
 }
-
-
-
-
-    
-
-
