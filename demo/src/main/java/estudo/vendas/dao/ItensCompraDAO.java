@@ -1,65 +1,21 @@
 package estudo.vendas.dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
+import estudo.vendas.model.Compra;
 import estudo.vendas.model.Conexao;
-import estudo.vendas.model.Vendas;
+import estudo.vendas.model.ItensCompra;
+import estudo.vendas.model.Produto;
 
-public class VendasDAO {
-    public boolean salvarVenda(Vendas vendas) {
+public class ItensCompraDAO {
+    public boolean salvarItensCompra(ItensCompra itens_compra) {
 
-        String query = "INSERT INTO vendas (data_venda, valor_total, id_cliente) VALUES (?, ?, ?)";
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            Connection conn = Conexao.getConnection();
-
-            stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-
-            stmt.setDate(1, new Date(vendas.getData_venda().getTime()));
-            stmt.setFloat(2, vendas.getValor_total());
-            stmt.setInt(3, vendas.getCliente().getId_cliente());
-
-            int linhas_afetadas = stmt.executeUpdate();
-
-            if (linhas_afetadas > 0) {
-                rs = stmt.getGeneratedKeys();
-
-                if (rs.next()) {
-                    vendas.setId_venda(rs.getInt(1));
-                }
-
-                return true;
-            }
-
-            return false;
-        
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-    public boolean alterarVenda(Vendas venda_antiga, Vendas venda_nova) {
-        String query = "UPDATE vendas SET (data_venda, valor_total, id_cliente) = (?, ?, ?) WHERE (id_venda) = (?)";
+        String query = "INSERT INTO itens_compra (id_compra, id_produto, preco_unitario, quantidade) VALUES (?, ?, ?, ?)";
         PreparedStatement stmt = null;
 
         try {
@@ -67,15 +23,15 @@ public class VendasDAO {
 
             stmt = conn.prepareStatement(query);
 
-            stmt.setDate(1, new Date(venda_nova.getData_venda().getTime()));
-            stmt.setFloat(2, venda_nova.getValor_total());
-            stmt.setInt(3, venda_nova.getCliente().getId_cliente());
-            stmt.setInt(4, venda_antiga.getId_venda());
+            stmt.setInt(1, itens_compra.getCompra().getId_compra());
+            stmt.setInt(2, itens_compra.getProduto().getId_produto());
+            stmt.setFloat(3, itens_compra.getPreco_unitario());
+            stmt.setInt(4, itens_compra.getQuantidade());
 
             int linhas_afetadas = stmt.executeUpdate();
 
             return linhas_afetadas > 0;
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -91,8 +47,8 @@ public class VendasDAO {
     }
 
 
-    public boolean excluirVenda(int id_venda) {
-        String query = "DELETE FROM vendas WHERE (id_venda) = (?)";
+    public boolean alterarItensCompra(ItensCompra item_antigo, ItensCompra item_novo) {
+        String query = "UPDATE itens_compra SET (id_compra, id_produto, preco_unitario, quantidade) = (?, ?, ?, ?) WHERE (id_item) = (?)";
         PreparedStatement stmt = null;
 
         try {
@@ -100,12 +56,16 @@ public class VendasDAO {
 
             stmt = conn.prepareStatement(query);
 
-            stmt.setInt(1, id_venda);
+            stmt.setInt(1, item_novo.getCompra().getId_compra());
+            stmt.setInt(2, item_novo.getProduto().getId_produto());
+            stmt.setFloat(3, item_novo.getPreco_unitario());
+            stmt.setInt(4, item_novo.getQuantidade());
+            stmt.setInt(5, item_antigo.getId_item());
 
             int linhas_afetadas = stmt.executeUpdate();
 
             return linhas_afetadas > 0;
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -114,7 +74,6 @@ public class VendasDAO {
                 if (stmt != null) {
                     stmt.close();
                 }
-                
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -122,8 +81,39 @@ public class VendasDAO {
     }
 
 
-    public boolean pesquisarVenda(int id_venda) {
-        String query = "SELECT * FROM vendas WHERE (id_venda) = (?)";
+    public boolean excluirItemCompra(int id_item) {
+        String query = "DELETE FROM itens_compra WHERE (id_item) = (?)";
+        PreparedStatement stmt = null;
+
+        try {
+            Connection conn = Conexao.getConnection();
+
+            stmt = conn.prepareStatement(query);
+
+            stmt.setInt(1, id_item);
+
+            int linhas_afetadas = stmt.executeUpdate();
+
+            return linhas_afetadas > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public boolean pesquisarItemCompra(int id_item) {
+        String query = "SELECT 1 FROM itens_compra WHERE (id_item) = (?)";
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
@@ -131,7 +121,7 @@ public class VendasDAO {
             Connection conn = Conexao.getConnection();
             stmt = conn.prepareStatement(query);
 
-            stmt.setInt(1, id_venda);
+            stmt.setInt(1, id_item);
 
             rs = stmt.executeQuery();
 
@@ -155,26 +145,38 @@ public class VendasDAO {
         }
     }
 
-    public int listarVendasClienteMes(String cpf_cliente) {
-        String query = "SELECT COUNT(*) FROM vendas v "
-                + "INNER JOIN cliente c ON v.id_cliente = c.id_cliente "
-                + "WHERE c.cpf_cliente = ? "
-                + "AND v.data_venda >= date_trunc('month', CURRENT_DATE)::date "
-                + "AND v.data_venda < (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month')::date";
 
+    
+    public List<ItensCompra> listarItensCompraPorCompra(Compra compras) {
+        String query = "SELECT * FROM itens_compra WHERE (id_compra) = (?)";
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        List<ItensCompra> listaItens = new ArrayList<>();
 
         try {
             Connection conn = Conexao.getConnection();
             stmt = conn.prepareStatement(query);
 
-            stmt.setString(1, cpf_cliente);
+            stmt.setInt(1, compras.getId_compra());
 
             rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                return rs.getInt(1);
+            while (rs.next()) {
+                ItensCompra item = new ItensCompra();
+
+                item.setId_item(rs.getInt("id_item"));
+                item.setQuantidade(rs.getInt("quantidade"));
+                item.setPreco_unitario(rs.getFloat("preco_unitario"));
+
+                Compra compra = new Compra();
+                compra.setId_compra(rs.getInt("id_compra"));
+                item.setCompra(compra);
+
+                Produto produto = new Produto();
+                produto.setId_produto(rs.getInt("id_produto"));
+                item.setProduto(produto);
+
+                listaItens.add(item);
             }
 
         } catch (SQLException e) {
@@ -182,14 +184,17 @@ public class VendasDAO {
 
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
 
-        return 0;
+        return listaItens;
     }
-
 }

@@ -1,23 +1,21 @@
 package estudo.vendas.model;
 
-public class ItensVenda {
-
+public class ItensCompra {
     private Integer id_item;
     private Float preco_unitario;
     private Integer quantidade;
-    private Vendas vendas;
     private Produto produto;
+    private Compra compra;
 
-    public ItensVenda(){
-
+    public ItensCompra() {
     }
 
-    public ItensVenda(Integer id_item, Float preco_unitario, Integer quantidade, Vendas vendas, Produto produto) {
+    public ItensCompra(Integer id_item, Float preco_unitario, Integer quantidade, Produto produto, Compra compra) {
         this.id_item = id_item;
         this.preco_unitario = preco_unitario;
         this.quantidade = quantidade;
-        this.vendas = vendas;
         this.produto = produto;
+        this.compra = compra;
     }
 
     public Integer getId_item() {
@@ -44,14 +42,6 @@ public class ItensVenda {
         this.quantidade = quantidade;
     }
 
-    public Vendas getVendas() {
-        return vendas;
-    }
-
-    public void setVendas(Vendas vendas) {
-        this.vendas = vendas;
-    }
-
     public Produto getProduto() {
         return produto;
     }
@@ -59,5 +49,13 @@ public class ItensVenda {
     public void setProduto(Produto produto) {
         this.produto = produto;
     }
-    
+
+    public Compra getCompra() {
+        return compra;
+    }
+
+    public void setCompra(Compra compra) {
+        this.compra = compra;
+    }
+
 }

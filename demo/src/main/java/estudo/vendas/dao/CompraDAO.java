@@ -7,13 +7,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import estudo.vendas.model.Compra;
 import estudo.vendas.model.Conexao;
-import estudo.vendas.model.Vendas;
 
-public class VendasDAO {
-    public boolean salvarVenda(Vendas vendas) {
+public class CompraDAO {
+    public boolean salvarCompra(Compra compra) {
 
-        String query = "INSERT INTO vendas (data_venda, valor_total, id_cliente) VALUES (?, ?, ?)";
+        String query = "INSERT INTO compra (data_compra, valor_total, id_fornecedor) VALUES (?, ?, ?)";
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
@@ -22,9 +22,9 @@ public class VendasDAO {
 
             stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
-            stmt.setDate(1, new Date(vendas.getData_venda().getTime()));
-            stmt.setFloat(2, vendas.getValor_total());
-            stmt.setInt(3, vendas.getCliente().getId_cliente());
+            stmt.setDate(1, new Date(compra.getData_compra().getTime()));
+            stmt.setFloat(2, compra.getValor_total());
+            stmt.setInt(3, compra.getFornecedor().getId_fornecedor());
 
             int linhas_afetadas = stmt.executeUpdate();
 
@@ -32,14 +32,14 @@ public class VendasDAO {
                 rs = stmt.getGeneratedKeys();
 
                 if (rs.next()) {
-                    vendas.setId_venda(rs.getInt(1));
+                    compra.setId_compra(rs.getInt(1));
                 }
 
                 return true;
             }
 
             return false;
-        
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -58,8 +58,8 @@ public class VendasDAO {
     }
 
 
-    public boolean alterarVenda(Vendas venda_antiga, Vendas venda_nova) {
-        String query = "UPDATE vendas SET (data_venda, valor_total, id_cliente) = (?, ?, ?) WHERE (id_venda) = (?)";
+    public boolean alterarCompra(Compra compra_antiga, Compra compra_nova) {
+        String query = "UPDATE compra SET (data_compra, valor_total, id_fornecedor) = (?, ?, ?) WHERE (id_compra) = (?)";
         PreparedStatement stmt = null;
 
         try {
@@ -67,15 +67,15 @@ public class VendasDAO {
 
             stmt = conn.prepareStatement(query);
 
-            stmt.setDate(1, new Date(venda_nova.getData_venda().getTime()));
-            stmt.setFloat(2, venda_nova.getValor_total());
-            stmt.setInt(3, venda_nova.getCliente().getId_cliente());
-            stmt.setInt(4, venda_antiga.getId_venda());
+            stmt.setDate(1, new Date(compra_nova.getData_compra().getTime()));
+            stmt.setFloat(2, compra_nova.getValor_total());
+            stmt.setInt(3, compra_nova.getFornecedor().getId_fornecedor());
+            stmt.setInt(4, compra_antiga.getId_compra());
 
             int linhas_afetadas = stmt.executeUpdate();
 
             return linhas_afetadas > 0;
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -91,8 +91,8 @@ public class VendasDAO {
     }
 
 
-    public boolean excluirVenda(int id_venda) {
-        String query = "DELETE FROM vendas WHERE (id_venda) = (?)";
+    public boolean excluirCompra(int id_compra) {
+        String query = "DELETE FROM compra WHERE (id_compra) = (?)";
         PreparedStatement stmt = null;
 
         try {
@@ -100,12 +100,12 @@ public class VendasDAO {
 
             stmt = conn.prepareStatement(query);
 
-            stmt.setInt(1, id_venda);
+            stmt.setInt(1, id_compra);
 
             int linhas_afetadas = stmt.executeUpdate();
 
             return linhas_afetadas > 0;
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -114,7 +114,7 @@ public class VendasDAO {
                 if (stmt != null) {
                     stmt.close();
                 }
-                
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -122,8 +122,8 @@ public class VendasDAO {
     }
 
 
-    public boolean pesquisarVenda(int id_venda) {
-        String query = "SELECT * FROM vendas WHERE (id_venda) = (?)";
+    public boolean pesquisarCompra(int id_compra) {
+        String query = "SELECT 1 FROM compra WHERE (id_compra) = (?)";
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
@@ -131,7 +131,7 @@ public class VendasDAO {
             Connection conn = Conexao.getConnection();
             stmt = conn.prepareStatement(query);
 
-            stmt.setInt(1, id_venda);
+            stmt.setInt(1, id_compra);
 
             rs = stmt.executeQuery();
 
@@ -154,42 +154,4 @@ public class VendasDAO {
             }
         }
     }
-
-    public int listarVendasClienteMes(String cpf_cliente) {
-        String query = "SELECT COUNT(*) FROM vendas v "
-                + "INNER JOIN cliente c ON v.id_cliente = c.id_cliente "
-                + "WHERE c.cpf_cliente = ? "
-                + "AND v.data_venda >= date_trunc('month', CURRENT_DATE)::date "
-                + "AND v.data_venda < (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month')::date";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            Connection conn = Conexao.getConnection();
-            stmt = conn.prepareStatement(query);
-
-            stmt.setString(1, cpf_cliente);
-
-            rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return 0;
-    }
-
 }
