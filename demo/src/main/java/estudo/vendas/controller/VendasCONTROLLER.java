@@ -110,4 +110,150 @@ public class VendasCONTROLLER {
 
         return total;
     }
+
+    // Metodo de alterar venda
+
+    public boolean alterarVenda(Vendas venda, List<ItensVenda> itensVenda) {
+        if (!validarVenda(venda, true)) {
+            return false;
+        }
+
+        if (itensVenda == null || itensVenda.isEmpty()) {
+            System.out.println("Venda sem itens.");
+            return false;
+        }
+
+        for (ItensVenda item : itensVenda) {
+            item.setVendas(venda);
+
+            if (!validarItemVenda(item, true)) {
+                return false;
+            }
+        }
+
+        venda.setValor_total(calcularValorTotal(itensVenda));
+
+        Vendas vendaAntiga = new Vendas();
+        vendaAntiga.setId_venda(venda.getId_venda());
+
+        boolean vendaAlterada = vendasDAO.alterarVenda(vendaAntiga, venda);
+
+        if (!vendaAlterada) {
+            System.out.println("Erro ao alterar venda.");
+            return false;
+        }
+
+        for (ItensVenda item : itensVenda) {
+            ItensVenda itemAntigo = new ItensVenda();
+            itemAntigo.setId_item(item.getId_item());
+
+            boolean itemAlterado = itensVendaDAO.alterarItensVenda(itemAntigo, item);
+
+            if (!itemAlterado) {
+                System.out.println("Erro ao alterar item da venda.");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Metodo de excluir venda
+
+    public boolean excluirVenda(Integer idVenda) {
+        if (!validarId(idVenda, "Venda invalida.")) {
+            return false;
+        }
+
+        Vendas venda = new Vendas();
+        venda.setId_venda(idVenda);
+
+        List<ItensVenda> itensVenda = itensVendaDAO.listarItensVendaPorVenda(venda);
+
+        for (ItensVenda item : itensVenda) {
+            boolean itemExcluido = itensVendaDAO.excluirItemVenda(item.getId_item());
+
+            if (!itemExcluido) {
+                System.out.println("Erro ao excluir item da venda.");
+                return false;
+            }
+        }
+
+        return vendasDAO.excluirVenda(idVenda);
+    }
+
+    // Metodo de pesquisar venda
+
+    public boolean pesquisarVenda(Integer idVenda) {
+        if (!validarId(idVenda, "Venda invalida.")) {
+            return false;
+        }
+
+        return vendasDAO.pesquisarVenda(idVenda);
+    }
+
+    private boolean validarVenda(Vendas venda, boolean validarId) {
+        if (venda == null) {
+            System.out.println("Venda invalida.");
+            return false;
+        }
+
+        if (validarId && !validarId(venda.getId_venda(), "Venda invalida.")) {
+            return false;
+        }
+
+        if (venda.getData_venda() == null) {
+            System.out.println("Data da venda invalida.");
+            return false;
+        }
+
+        if (venda.getCliente() == null || venda.getCliente().getId_cliente() == null) {
+            System.out.println("Cliente invalido na venda.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validarItemVenda(ItensVenda item, boolean validarId) {
+        if (item == null) {
+            System.out.println("Item da venda invalido.");
+            return false;
+        }
+
+        if (validarId && !validarId(item.getId_item(), "Item da venda invalido.")) {
+            return false;
+        }
+
+        if (item.getVendas() == null || item.getVendas().getId_venda() == null) {
+            System.out.println("Venda invalida no item da venda.");
+            return false;
+        }
+
+        if (item.getProduto() == null || item.getProduto().getId_produto() == null) {
+            System.out.println("Produto invalido no item da venda.");
+            return false;
+        }
+
+        if (item.getQuantidade() == null || item.getQuantidade() <= 0) {
+            System.out.println("Quantidade invalida no item da venda.");
+            return false;
+        }
+
+        if (item.getPreco_unitario() == null || item.getPreco_unitario() <= 0) {
+            System.out.println("Preco unitario invalido no item da venda.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validarId(Integer id, String mensagem) {
+        if (id == null || id <= 0) {
+            System.out.println(mensagem);
+            return false;
+        }
+
+        return true;
+    }
 }

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import estudo.vendas.model.Categoria;
 import estudo.vendas.model.Conexao;
@@ -14,23 +15,37 @@ public class CategoriaDAO {
 
         String query = "INSERT INTO categoria (nome_categoria) VALUES (?)";
         PreparedStatement stmt = null;
+        ResultSet rs = null;
 
         try {
             Connection conn = Conexao.getConnection();
 
-            stmt = conn.prepareStatement(query);
+            stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setString(1, categoria.getNome_categoria());
 
             int linhas_afetadas = stmt.executeUpdate();
 
-            return linhas_afetadas > 0;
+            if (linhas_afetadas > 0) {
+                rs = stmt.getGeneratedKeys();
+
+                if (rs.next()) {
+                    categoria.setId_categoria(rs.getInt(1));
+                }
+
+                return true;
+            }
+
+            return false;
         
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         } finally {
             try {
+                if (rs != null) {
+                    rs.close();
+                }
                 if (stmt != null) {
                     stmt.close();
                 }
