@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import estudo.vendas.model.Conexao;
 import estudo.vendas.model.Fornecedor;
@@ -13,11 +14,12 @@ public class FornecedorDAO {
 
         String query = "INSERT INTO fornecedor (nome_fantasia, razao_social, cnpj) VALUES (?, ?, ?)";
         PreparedStatement stmt = null;
+        ResultSet rs = null;
 
         try {
             Connection conn = Conexao.getConnection();
 
-            stmt = conn.prepareStatement(query);
+            stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setString(1, fornecedor.getNome_fantasia());
             stmt.setString(2, fornecedor.getRazao_social());
@@ -25,13 +27,26 @@ public class FornecedorDAO {
 
             int linhas_afetadas = stmt.executeUpdate();
 
-            return linhas_afetadas > 0;
+            if (linhas_afetadas > 0) {
+                rs = stmt.getGeneratedKeys();
+
+                if (rs.next()) {
+                    fornecedor.setId_fornecedor(rs.getInt(1));
+                }
+
+                return true;
+            }
+
+            return false;
         
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         } finally {
             try {
+                if (rs != null) {
+                    rs.close();
+                }
                 if (stmt != null) {
                     stmt.close();
                 }

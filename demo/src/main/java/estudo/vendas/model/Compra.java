@@ -18,7 +18,7 @@ public class Compra {
         this.fornecedor = fornecedor;
     }
 
-    public int getId_compra() {
+    public Integer getId_compra() {
         return id_compra;
     }
 
@@ -34,7 +34,7 @@ public class Compra {
         this.data_compra = data_compra;
     }
 
-    public float getValor_total() {
+    public Float getValor_total() {
         return valor_total;
     }
 

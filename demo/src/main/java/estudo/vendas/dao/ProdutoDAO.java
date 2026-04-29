@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import estudo.vendas.model.Categoria;
 import estudo.vendas.model.Conexao;
@@ -14,11 +15,12 @@ public class ProdutoDAO {
 
         String query = "INSERT INTO produto (nome_produto, preco_medio, qtde_estoque, id_categoria, valor_ultima_compra, valor_ultima_venda) VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement stmt = null;
+        ResultSet rs = null;
 
         try {
             Connection conn = Conexao.getConnection();
 
-            stmt = conn.prepareStatement(query);
+            stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setString(1, produto.getNome_produto());
             stmt.setFloat(2, produto.getPreco_medio());
@@ -29,13 +31,26 @@ public class ProdutoDAO {
 
             int linhas_afetadas = stmt.executeUpdate();
 
-            return linhas_afetadas > 0;
+            if (linhas_afetadas > 0) {
+                rs = stmt.getGeneratedKeys();
+
+                if (rs.next()) {
+                    produto.setId_produto(rs.getInt(1));
+                }
+
+                return true;
+            }
+
+            return false;
         
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         } finally {
             try {
+                if (rs != null) {
+                    rs.close();
+                }
                 if (stmt != null) {
                     stmt.close();
                 }
