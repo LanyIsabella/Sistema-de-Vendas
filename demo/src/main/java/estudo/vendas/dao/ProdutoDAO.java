@@ -290,6 +290,69 @@ public class ProdutoDAO {
     }
 
 
+    public boolean atualizarUltimoValorCompra(int idProduto, float preco_unitario) {
+        String query = "UPDATE produto SET valor_ultima_compra = ? WHERE id_produto = ?";
+        PreparedStatement stmt = null;
+
+        try {
+            Connection conn = Conexao.getConnection();
+            stmt = conn.prepareStatement(query);
+
+            stmt.setFloat(1, preco_unitario);
+            stmt.setInt(2, idProduto);
+
+            int linhas_afetadas = stmt.executeUpdate();
+
+            return linhas_afetadas > 0;
+
+            
+        } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public boolean atualizarPrecoMedioProduto(int idProduto, float precoMedio) {
+        String query = "UPDATE produto SET preco_medio = ? WHERE id_produto = ?";
+        PreparedStatement stmt = null;
+
+        try {
+            Connection conn = Conexao.getConnection();
+            stmt = conn.prepareStatement(query);
+
+            stmt.setFloat(1, precoMedio);
+            stmt.setInt(2, idProduto);
+
+            int linhas_afetadas = stmt.executeUpdate();
+
+            return linhas_afetadas > 0;
+
+        } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     
 
 }

@@ -7,15 +7,15 @@ public class Produto {
     private Float preco_medio;
     private Integer qtde_estoque;
     private Categoria categoria; 
-    private float valor_ultima_compra;
-    private float valor_ultima_venda;
+    private Float valor_ultima_compra;
+    private Float valor_ultima_venda;
 
     public Produto(){
 
     }
 
     public Produto(Integer id_produto, String nome_produto, Float preco_medio, Integer qtde_estoque,
-            Categoria categoria, float valor_ultima_compra, float valor_ultima_venda) {
+            Categoria categoria, Float valor_ultima_compra, Float valor_ultima_venda) {
         this.id_produto = id_produto;
         this.nome_produto = nome_produto;
         this.preco_medio = preco_medio;
@@ -65,19 +65,19 @@ public class Produto {
         this.categoria = categoria;
     }
 
-    public float getValor_ultima_compra() {
+    public Float getValor_ultima_compra() {
         return valor_ultima_compra;
     }
 
-    public void setValor_ultima_compra(float valor_ultima_compra) {
+    public void setValor_ultima_compra(Float valor_ultima_compra) {
         this.valor_ultima_compra = valor_ultima_compra;
     }
 
-    public float getValor_ultima_venda() {
+    public Float getValor_ultima_venda() {
         return valor_ultima_venda;
     }
 
-    public void setValor_ultima_venda(float valor_ultima_venda) {
+    public void setValor_ultima_venda(Float valor_ultima_venda) {
         this.valor_ultima_venda = valor_ultima_venda;
     }
     

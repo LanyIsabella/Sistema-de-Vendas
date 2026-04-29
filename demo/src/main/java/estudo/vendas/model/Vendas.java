@@ -36,7 +36,7 @@ public class Vendas {
         this.data_venda = data_venda;
     }
 
-    public float getValor_total() {
+    public Float getValor_total() {
         return valor_total;
     }
 

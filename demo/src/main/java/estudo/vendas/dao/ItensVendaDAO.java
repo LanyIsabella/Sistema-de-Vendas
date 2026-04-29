@@ -15,7 +15,7 @@ import estudo.vendas.model.Vendas;
 public class ItensVendaDAO {
     public boolean salvarItensVenda(ItensVenda itens_venda) {
 
-        String query = "INSERT INTO itens_venda (id_venda, id_produto, quantidade) VALUES (?, ?, ?)";
+        String query = "INSERT INTO itens_venda (id_venda, id_produto, preco_unitario, quantidade) VALUES (?, ?, ?, ?)";
         PreparedStatement stmt = null;
 
         try {
@@ -25,7 +25,8 @@ public class ItensVendaDAO {
 
             stmt.setInt(1, itens_venda.getVendas().getId_venda());
             stmt.setInt(2, itens_venda.getProduto().getId_produto());
-            stmt.setInt(3, itens_venda.getQuantidade());
+            stmt.setFloat(3, itens_venda.getPreco_unitario());
+            stmt.setInt(4, itens_venda.getQuantidade());
 
             int linhas_afetadas = stmt.executeUpdate();
 
@@ -47,7 +48,7 @@ public class ItensVendaDAO {
 
 
     public boolean alterarItensVenda(ItensVenda item_antigo, ItensVenda item_novo) {
-        String query = "UPDATE itens_venda SET (id_venda, id_produto, quantidade) = (?, ?, ?) WHERE (id_item) = (?)";
+        String query = "UPDATE itens_venda SET (id_venda, id_produto, preco_unitario, quantidade) = (?, ?, ?, ?) WHERE (id_item) = (?)";
         PreparedStatement stmt = null;
 
         try {
@@ -57,8 +58,9 @@ public class ItensVendaDAO {
 
             stmt.setInt(1, item_novo.getVendas().getId_venda());
             stmt.setInt(2, item_novo.getProduto().getId_produto());
-            stmt.setInt(3, item_novo.getQuantidade());
-            stmt.setInt(4, item_antigo.getId_item());
+            stmt.setFloat(3, item_novo.getPreco_unitario());
+            stmt.setInt(4, item_novo.getQuantidade());
+            stmt.setInt(5, item_antigo.getId_item());
 
             int linhas_afetadas = stmt.executeUpdate();
 
@@ -161,6 +163,7 @@ public class ItensVendaDAO {
                 ItensVenda item = new ItensVenda();
 
                 item.setId_item(rs.getInt("id_item"));
+                item.setPreco_unitario(rs.getFloat("preco_unitario"));
                 item.setQuantidade(rs.getInt("quantidade"));
 
                 Vendas venda = new Vendas();

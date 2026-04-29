@@ -1,34 +1,44 @@
 package estudo.vendas.model;
 
 public class ItensCompra {
-    private int id_item;
-    private int quantidade;
+    private Integer id_item;
+    private Float preco_unitario;
+    private Integer quantidade;
     private Produto produto;
     private Compra compra;
 
     public ItensCompra() {
     }
 
-    public ItensCompra(int id_item, int quantidade, Produto produto, Compra compra) {
+    public ItensCompra(Integer id_item, Float preco_unitario, Integer quantidade, Produto produto, Compra compra) {
         this.id_item = id_item;
+        this.preco_unitario = preco_unitario;
         this.quantidade = quantidade;
         this.produto = produto;
         this.compra = compra;
     }
 
-    public int getId_item() {
+    public Integer getId_item() {
         return id_item;
     }
 
-    public void setId_item(int id_item) {
+    public void setId_item(Integer id_item) {
         this.id_item = id_item;
     }
 
-    public int getQuantidade() {
+    public Float getPreco_unitario() {
+        return preco_unitario;
+    }
+
+    public void setPreco_unitario(Float preco_unitario) {
+        this.preco_unitario = preco_unitario;
+    }
+
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
 

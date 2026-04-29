@@ -3,6 +3,7 @@ package estudo.vendas.model;
 public class ItensVenda {
 
     private Integer id_item;
+    private Float preco_unitario;
     private Integer quantidade;
     private Vendas vendas;
     private Produto produto;
@@ -11,8 +12,9 @@ public class ItensVenda {
 
     }
 
-    public ItensVenda(Integer id_item, Integer quantidade, Vendas vendas, Produto produto) {
+    public ItensVenda(Integer id_item, Float preco_unitario, Integer quantidade, Vendas vendas, Produto produto) {
         this.id_item = id_item;
+        this.preco_unitario = preco_unitario;
         this.quantidade = quantidade;
         this.vendas = vendas;
         this.produto = produto;
@@ -24,6 +26,14 @@ public class ItensVenda {
 
     public void setId_item(Integer id_item) {
         this.id_item = id_item;
+    }
+
+    public Float getPreco_unitario() {
+        return preco_unitario;
+    }
+
+    public void setPreco_unitario(Float preco_unitario) {
+        this.preco_unitario = preco_unitario;
     }
 
     public Integer getQuantidade() {

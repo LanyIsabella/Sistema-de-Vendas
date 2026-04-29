@@ -3,15 +3,15 @@ package estudo.vendas.model;
 import java.util.Date;
 
 public class Compra {
-    private int id_compra;
+    private Integer id_compra;
     private Date data_compra;
-    private float valor_total;
+    private Float valor_total;
     private Fornecedor fornecedor;
 
     public Compra() {
     }
 
-    public Compra(int id_compra, Date data_compra, float valor_total, Fornecedor fornecedor) {
+    public Compra(Integer id_compra, Date data_compra, Float valor_total, Fornecedor fornecedor) {
         this.id_compra = id_compra;
         this.data_compra = data_compra;
         this.valor_total = valor_total;
@@ -22,7 +22,7 @@ public class Compra {
         return id_compra;
     }
 
-    public void setId_compra(int id_compra) {
+    public void setId_compra(Integer id_compra) {
         this.id_compra = id_compra;
     }
 
@@ -38,7 +38,7 @@ public class Compra {
         return valor_total;
     }
 
-    public void setValor_total(float valor_total) {
+    public void setValor_total(Float valor_total) {
         this.valor_total = valor_total;
     }
 
